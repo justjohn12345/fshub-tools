@@ -1,9 +1,11 @@
 package fswebhook
 
 import (
+	"bytes"
 	"database/sql"
 	"encoding/json"
 	"fmt"
+	"io"
 	"log"
 	"net/http"
 	"time"
@@ -157,20 +159,20 @@ type FlightCompletedWebhook struct {
 }
 
 type FlightData struct {
-	ID       int `json:"id"`
-	User     User `json:"user"`
-	Airline  Airline `json:"airline"`
-	Aircraft Aircraft `json:"aircraft"`
-	Departure Airport `json:"departure"`
-	Arrival  Airport `json:"arrival"`
-	Distance Distance `json:"distance"`
-	Time     int `json:"time"`
-	FuelUsed int `json:"fuel_used"`
-	LandingRate int `json:"landing_rate"`
+	ID          int      `json:"id"`
+	User        User     `json:"user"`
+	Airline     Airline  `json:"airline"`
+	Aircraft    Aircraft `json:"aircraft"`
+	Departure   Airport  `json:"departure"`
+	Arrival     Airport  `json:"arrival"`
+	Distance    Distance `json:"distance"`
+	Time        int      `json:"time"`
+	FuelUsed    int      `json:"fuel_used"`
+	LandingRate int      `json:"landing_rate"`
 }
 
 type User struct {
-	ID   int `json:"id"`
+	ID   int    `json:"id"`
 	Name string `json:"name"`
 }
 
@@ -198,6 +200,17 @@ func FlightCompletedHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
 		return
 	}
+
+	// Read the body
+	body, err := io.ReadAll(r.Body)
+	if err != nil {
+		http.Error(w, "Error reading request body", http.StatusInternalServerError)
+		return
+	}
+	// Restore the body so it can be read again
+	r.Body = io.NopCloser(bytes.NewBuffer(body))
+
+	log.Printf("Received FlightCompleted request: %s", string(body))
 
 	var webhook FlightCompletedWebhook
 	if err := json.NewDecoder(r.Body).Decode(&webhook); err != nil {
@@ -241,6 +254,8 @@ func FlightCompletedHandler(w http.ResponseWriter, r *http.Request) {
 		)
 		if err != nil {
 			log.Printf("Error inserting flight data: %v", err)
+		} else {
+			log.Printf("Successfully inserted flight data for flight ID %d", flight.ID)
 		}
 	}
 
