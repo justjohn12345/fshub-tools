@@ -8,6 +8,7 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"sort"
 	"time"
 
 	_ "github.com/mattn/go-sqlite3"
@@ -101,6 +102,7 @@ func getTopPilots(start, end time.Time, orderBy string) ([]PilotStats, error) {
 		var ps PilotStats
 		err := rows.Scan(&ps.PilotName, &ps.PilotID, &ps.AverageLandingRate, &ps.TotalFlights, &ps.TotalDistance, &ps.TotalHoursFlown)
 		if err != nil {
+			log.Printf("Error scanning pilot stats: %v", err)
 			return nil, err
 		}
 		stats = append(stats, ps)
@@ -186,13 +188,173 @@ type Aircraft struct {
 }
 
 type Airport struct {
-	ICAO string `json:"icao"`
-	Name string `json:"name"`
-	Time string `json:"time"`
+	ICAO string    `json:"icao"`
+	Name string    `json:"name"`
+	Time time.Time `json:"time"`
 }
 
 type Distance struct {
 	NM int `json:"nm"`
+}
+
+// GroupFlight struct to hold data for a group flight event
+// PilotLandingRate struct to hold pilot's landing rate
+type PilotLandingRate struct {
+	PilotName   string  `json:"pilot_name"`
+	LandingRate float64 `json:"landing_rate"`
+}
+
+type GroupFlight struct {
+	DepartureICAO   string             `json:"departure_icao"`
+	ArrivalICAO     string             `json:"arrival_icao"`
+	Pilots          []string           `json:"pilots"`
+	FlightCount     int                `json:"flight_count"`
+	StartTime       time.Time          `json:"start_time"`
+	TopLandingRates []PilotLandingRate `json:"top_landing_rates"`
+}
+
+func GroupFlightHandler(w http.ResponseWriter, r *http.Request) {
+	leader := "KipOnTheGround"
+	twentyFourHoursAgo := time.Now().UTC().Add(-24 * time.Hour).Format(time.RFC3339)
+
+	// 1. Find all of the leader's flights in the last 24 hours
+	leaderFlightsQuery := `
+        SELECT departure_icao, arrival_icao, arrival_time, landing_rate
+        FROM flights
+        WHERE pilotname = ? AND arrival_time >= ?
+        ORDER BY arrival_time DESC;
+    `
+	rows, err := db.Query(leaderFlightsQuery, leader, twentyFourHoursAgo)
+	if err != nil {
+		http.Error(w, "Error querying leader's flights", http.StatusInternalServerError)
+		return
+	}
+	defer rows.Close()
+
+	type LeaderFlight struct {
+		DepartureICAO string
+		ArrivalICAO   string
+		ArrivalTime   time.Time
+		LandingRate   float64
+	}
+	var leaderFlights []LeaderFlight
+
+	for rows.Next() {
+		var lf LeaderFlight
+		var arrivalTimeStr string
+		if err := rows.Scan(&lf.DepartureICAO, &lf.ArrivalICAO, &arrivalTimeStr, &lf.LandingRate); err != nil {
+			log.Printf("Error scanning leader flight: %v", err)
+			continue
+		}
+		log.Printf("Arrival time string for leader flight: %s", arrivalTimeStr)
+		lf.ArrivalTime, err = time.Parse(time.RFC3339, arrivalTimeStr)
+		if err != nil {
+			log.Printf("Error parsing arrival time for leader flight: %v", err)
+			continue
+		}
+		leaderFlights = append(leaderFlights, lf)
+	}
+
+	var allGroupFlights []GroupFlight
+
+	// 2. For each of the leader's flights, find other flights within the time window
+	for _, lf := range leaderFlights {
+		timeWindowStart := lf.ArrivalTime.Add(-30 * time.Minute)
+		timeWindowEnd := lf.ArrivalTime.Add(30 * time.Minute)
+
+		log.Printf("timeWindowStart: %s, timeWindowEnd: %s", timeWindowStart.Format(time.RFC3339), timeWindowEnd.Format(time.RFC3339))
+
+		groupQuery := `
+		    SELECT pilotname, landing_rate
+		    FROM flights
+		    WHERE departure_icao = ? AND arrival_icao = ? AND arrival_time BETWEEN ? AND ?;
+		`
+		// Use the time window to find other flights in the group
+		groupRows, err := db.Query(groupQuery,
+			lf.DepartureICAO, lf.ArrivalICAO,
+			//timeWindowStart.UTC(), timeWindowEnd.UTC()
+			timeWindowStart.Format(time.RFC3339), timeWindowEnd.Format(time.RFC3339))
+		log.Printf("Departure ICAO: %s, Arrival ICAO: %s", lf.DepartureICAO, lf.ArrivalICAO)
+		if err != nil {
+			log.Printf("Error querying for group flights: %v", err)
+			continue
+		}
+		defer groupRows.Close()
+
+		var pilots []string
+		var allLandingRates []PilotLandingRate
+		var leaderInGroup bool
+
+		for groupRows.Next() {
+			var plr PilotLandingRate
+			if err := groupRows.Scan(&plr.PilotName, &plr.LandingRate); err != nil {
+				log.Printf("Error scanning group flight pilot: %v", err)
+				continue
+			}
+			log.Printf("Found pilot: %s with landing rate: %f", plr.PilotName, plr.LandingRate)
+			pilots = append(pilots, plr.PilotName)
+			allLandingRates = append(allLandingRates, plr)
+			if plr.PilotName == leader {
+				leaderInGroup = true
+			}
+		}
+
+		if len(allLandingRates) < 5 {
+			// If not enough pilots, we can skip this group flight
+			continue
+		}
+
+		if !leaderInGroup {
+			// This case should ideally not happen based on the query logic, but as a safeguard
+			pilots = append(pilots, leader)
+			allLandingRates = append(allLandingRates, PilotLandingRate{PilotName: leader, LandingRate: lf.LandingRate})
+		}
+
+		// 3. Produce a top 5 landing rate, ensuring the leader is included
+		sort.Slice(allLandingRates, func(i, j int) bool {
+			return allLandingRates[i].LandingRate > allLandingRates[j].LandingRate
+		})
+
+		var topLandingRates []PilotLandingRate
+		var leaderInTop5 bool
+		for i, plr := range allLandingRates {
+			if i < 5 {
+				topLandingRates = append(topLandingRates, plr)
+				if plr.PilotName == leader {
+					leaderInTop5 = true
+				}
+			} else {
+				break
+			}
+		}
+
+		if !leaderInTop5 {
+			// Find the leader's landing rate and add it
+			for _, plr := range allLandingRates {
+				if plr.PilotName == leader {
+					topLandingRates = append(topLandingRates, plr)
+					break
+				}
+			}
+		}
+
+		groupFlight := GroupFlight{
+			DepartureICAO:   lf.DepartureICAO,
+			ArrivalICAO:     lf.ArrivalICAO,
+			Pilots:          pilots,
+			FlightCount:     len(pilots),
+			StartTime:       lf.ArrivalTime,
+			TopLandingRates: topLandingRates,
+		}
+		allGroupFlights = append(allGroupFlights, groupFlight)
+	}
+
+	if len(allGroupFlights) > 0 {
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(allGroupFlights)
+	} else {
+		w.WriteHeader(http.StatusNotFound)
+	}
 }
 
 func FlightCompletedHandler(w http.ResponseWriter, r *http.Request) {
