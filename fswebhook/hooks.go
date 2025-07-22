@@ -246,7 +246,6 @@ func GroupFlightHandler(w http.ResponseWriter, r *http.Request) {
 			log.Printf("Error scanning leader flight: %v", err)
 			continue
 		}
-		log.Printf("Arrival time string for leader flight: %s", arrivalTimeStr)
 		lf.ArrivalTime, err = time.Parse(time.RFC3339, arrivalTimeStr)
 		if err != nil {
 			log.Printf("Error parsing arrival time for leader flight: %v", err)
@@ -274,7 +273,6 @@ func GroupFlightHandler(w http.ResponseWriter, r *http.Request) {
 			lf.DepartureICAO, lf.ArrivalICAO,
 			//timeWindowStart.UTC(), timeWindowEnd.UTC()
 			timeWindowStart.Format(time.RFC3339), timeWindowEnd.Format(time.RFC3339))
-		log.Printf("Departure ICAO: %s, Arrival ICAO: %s", lf.DepartureICAO, lf.ArrivalICAO)
 		if err != nil {
 			log.Printf("Error querying for group flights: %v", err)
 			continue
@@ -291,7 +289,6 @@ func GroupFlightHandler(w http.ResponseWriter, r *http.Request) {
 				log.Printf("Error scanning group flight pilot: %v", err)
 				continue
 			}
-			log.Printf("Found pilot: %s with landing rate: %f", plr.PilotName, plr.LandingRate)
 			pilots = append(pilots, plr.PilotName)
 			allLandingRates = append(allLandingRates, plr)
 			if plr.PilotName == leader {
