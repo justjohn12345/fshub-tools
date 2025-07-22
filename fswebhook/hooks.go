@@ -261,8 +261,6 @@ func GroupFlightHandler(w http.ResponseWriter, r *http.Request) {
 		timeWindowStart := lf.ArrivalTime.Add(-30 * time.Minute)
 		timeWindowEnd := lf.ArrivalTime.Add(30 * time.Minute)
 
-		log.Printf("timeWindowStart: %s, timeWindowEnd: %s", timeWindowStart.Format(time.RFC3339), timeWindowEnd.Format(time.RFC3339))
-
 		groupQuery := `
 		    SELECT pilotname, landing_rate
 		    FROM flights
