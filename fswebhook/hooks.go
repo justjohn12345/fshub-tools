@@ -207,6 +207,7 @@ type PilotLandingRate struct {
 type GroupFlight struct {
 	DepartureICAO   string             `json:"departure_icao"`
 	ArrivalICAO     string             `json:"arrival_icao"`
+	AircraftName    string             `json:"aircraft_name"`
 	Pilots          []string           `json:"pilots"`
 	FlightCount     int                `json:"flight_count"`
 	StartTime       time.Time          `json:"start_time"`
@@ -219,7 +220,7 @@ func GroupFlightHandler(w http.ResponseWriter, r *http.Request) {
 
 	// 1. Find all of the leader's flights in the last 24 hours
 	leaderFlightsQuery := `
-        SELECT departure_icao, arrival_icao, arrival_time, landing_rate
+        SELECT departure_icao, arrival_icao, arrival_time, landing_rate, aircraft_name
         FROM flights
         WHERE pilotname = ? AND arrival_time >= ?
         ORDER BY arrival_time DESC;
@@ -236,13 +237,14 @@ func GroupFlightHandler(w http.ResponseWriter, r *http.Request) {
 		ArrivalICAO   string
 		ArrivalTime   time.Time
 		LandingRate   float64
+		AircraftName  string
 	}
 	var leaderFlights []LeaderFlight
 
 	for rows.Next() {
 		var lf LeaderFlight
 		var arrivalTimeStr string
-		if err := rows.Scan(&lf.DepartureICAO, &lf.ArrivalICAO, &arrivalTimeStr, &lf.LandingRate); err != nil {
+		if err := rows.Scan(&lf.DepartureICAO, &lf.ArrivalICAO, &arrivalTimeStr, &lf.LandingRate, &lf.AircraftName); err != nil {
 			log.Printf("Error scanning leader flight: %v", err)
 			continue
 		}
@@ -336,6 +338,7 @@ func GroupFlightHandler(w http.ResponseWriter, r *http.Request) {
 		groupFlight := GroupFlight{
 			DepartureICAO:   lf.DepartureICAO,
 			ArrivalICAO:     lf.ArrivalICAO,
+			AircraftName:    lf.AircraftName,
 			Pilots:          pilots,
 			FlightCount:     len(pilots),
 			StartTime:       lf.ArrivalTime,

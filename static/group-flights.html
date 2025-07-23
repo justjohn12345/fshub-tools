@@ -97,11 +97,11 @@
                         
                         const startTime = new Date(group.start_time).toLocaleString();
                         const info = document.createElement('p');
-                        info.innerHTML = `<strong>Start Time:</strong> ${startTime}<br><strong>Total Pilots:</strong> ${group.flight_count}`;
+                        info.innerHTML = `<strong>Start Time:</strong> ${startTime}<br><strong>Total Pilots:</strong> ${group.flight_count}<br><strong>Aircraft:</strong> ${group.aircraft_name}`;
 
                         const table = document.createElement('table');
                         const thead = document.createElement('thead');
-                        thead.innerHTML = '<tr><th>Pilot</th><th>Landing Rate (fpm)</th></tr>';
+                        thead.innerHTML = '<tr><th>Pilot</th><th>Landing Rate (fpm)</th><th>Aircraft</th></tr>';
                         const tbody = document.createElement('tbody');
 
                         group.top_landing_rates.forEach(pilot => {
@@ -113,8 +113,11 @@
                             }
                             const rateCell = document.createElement('td');
                             rateCell.textContent = pilot.landing_rate.toFixed(2);
+                            const aircraftCell = document.createElement('td');
+                            aircraftCell.textContent = group.aircraft_name;
                             row.appendChild(pilotCell);
                             row.appendChild(rateCell);
+                            row.appendChild(aircraftCell);
                             tbody.appendChild(row);
                         });
 
