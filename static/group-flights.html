@@ -97,7 +97,7 @@
                         
                         const startTime = new Date(group.start_time).toLocaleString();
                         const info = document.createElement('p');
-                        info.innerHTML = `<strong>Start Time:</strong> ${startTime}<br><strong>Total Pilots:</strong> ${group.flight_count}<br><strong>Aircraft:</strong> ${group.aircraft_name}`;
+                        info.innerHTML = `<strong>Start Time:</strong> ${startTime}<br><strong>Total Pilots:</strong> ${group.flight_count}`;
 
                         const table = document.createElement('table');
                         const thead = document.createElement('thead');
@@ -114,7 +114,7 @@
                             const rateCell = document.createElement('td');
                             rateCell.textContent = pilot.landing_rate.toFixed(2);
                             const aircraftCell = document.createElement('td');
-                            aircraftCell.textContent = group.aircraft_name;
+                            aircraftCell.textContent = pilot.aircraft_name;
                             row.appendChild(pilotCell);
                             row.appendChild(rateCell);
                             row.appendChild(aircraftCell);

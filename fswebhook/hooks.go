@@ -199,19 +199,19 @@ type Distance struct {
 
 // GroupFlight struct to hold data for a group flight event
 // PilotLandingRate struct to hold pilot's landing rate
-type PilotLandingRate struct {
-	PilotName   string  `json:"pilot_name"`
-	LandingRate float64 `json:"landing_rate"`
+type PilotFlightDetails struct {
+	PilotName    string  `json:"pilot_name"`
+	LandingRate  float64 `json:"landing_rate"`
+	AircraftName string  `json:"aircraft_name"`
 }
 
 type GroupFlight struct {
-	DepartureICAO   string             `json:"departure_icao"`
-	ArrivalICAO     string             `json:"arrival_icao"`
-	AircraftName    string             `json:"aircraft_name"`
-	Pilots          []string           `json:"pilots"`
-	FlightCount     int                `json:"flight_count"`
-	StartTime       time.Time          `json:"start_time"`
-	TopLandingRates []PilotLandingRate `json:"top_landing_rates"`
+	DepartureICAO   string               `json:"departure_icao"`
+	ArrivalICAO     string               `json:"arrival_icao"`
+	Pilots          []string             `json:"pilots"`
+	FlightCount     int                  `json:"flight_count"`
+	StartTime       time.Time            `json:"start_time"`
+	TopLandingRates []PilotFlightDetails `json:"top_landing_rates"`
 }
 
 func GroupFlightHandler(w http.ResponseWriter, r *http.Request) {
@@ -264,7 +264,7 @@ func GroupFlightHandler(w http.ResponseWriter, r *http.Request) {
 		timeWindowEnd := lf.ArrivalTime.Add(30 * time.Minute)
 
 		groupQuery := `
-		    SELECT pilotname, landing_rate
+		    SELECT pilotname, landing_rate, aircraft_name
 		    FROM flights
 		    WHERE departure_icao = ? AND arrival_icao = ? AND arrival_time BETWEEN ? AND ?;
 		`
@@ -280,23 +280,23 @@ func GroupFlightHandler(w http.ResponseWriter, r *http.Request) {
 		defer groupRows.Close()
 
 		var pilots []string
-		var allLandingRates []PilotLandingRate
+		var allFlightDetails []PilotFlightDetails
 		var leaderInGroup bool
 
 		for groupRows.Next() {
-			var plr PilotLandingRate
-			if err := groupRows.Scan(&plr.PilotName, &plr.LandingRate); err != nil {
+			var pfd PilotFlightDetails
+			if err := groupRows.Scan(&pfd.PilotName, &pfd.LandingRate, &pfd.AircraftName); err != nil {
 				log.Printf("Error scanning group flight pilot: %v", err)
 				continue
 			}
-			pilots = append(pilots, plr.PilotName)
-			allLandingRates = append(allLandingRates, plr)
-			if plr.PilotName == leader {
+			pilots = append(pilots, pfd.PilotName)
+			allFlightDetails = append(allFlightDetails, pfd)
+			if pfd.PilotName == leader {
 				leaderInGroup = true
 			}
 		}
 
-		if len(allLandingRates) < 5 {
+		if len(allFlightDetails) < 5 {
 			// If not enough pilots, we can skip this group flight
 			continue
 		}
@@ -304,20 +304,20 @@ func GroupFlightHandler(w http.ResponseWriter, r *http.Request) {
 		if !leaderInGroup {
 			// This case should ideally not happen based on the query logic, but as a safeguard
 			pilots = append(pilots, leader)
-			allLandingRates = append(allLandingRates, PilotLandingRate{PilotName: leader, LandingRate: lf.LandingRate})
+			allFlightDetails = append(allFlightDetails, PilotFlightDetails{PilotName: leader, LandingRate: lf.LandingRate, AircraftName: lf.AircraftName})
 		}
 
 		// 3. Produce a top 5 landing rate, ensuring the leader is included
-		sort.Slice(allLandingRates, func(i, j int) bool {
-			return allLandingRates[i].LandingRate > allLandingRates[j].LandingRate
+		sort.Slice(allFlightDetails, func(i, j int) bool {
+			return allFlightDetails[i].LandingRate > allFlightDetails[j].LandingRate
 		})
 
-		var topLandingRates []PilotLandingRate
+		var topLandingRates []PilotFlightDetails
 		var leaderInTop5 bool
-		for i, plr := range allLandingRates {
+		for i, pfd := range allFlightDetails {
 			if i < 5 {
-				topLandingRates = append(topLandingRates, plr)
-				if plr.PilotName == leader {
+				topLandingRates = append(topLandingRates, pfd)
+				if pfd.PilotName == leader {
 					leaderInTop5 = true
 				}
 			} else {
@@ -327,9 +327,9 @@ func GroupFlightHandler(w http.ResponseWriter, r *http.Request) {
 
 		if !leaderInTop5 {
 			// Find the leader's landing rate and add it
-			for _, plr := range allLandingRates {
-				if plr.PilotName == leader {
-					topLandingRates = append(topLandingRates, plr)
+			for _, pfd := range allFlightDetails {
+				if pfd.PilotName == leader {
+					topLandingRates = append(topLandingRates, pfd)
 					break
 				}
 			}
@@ -338,7 +338,6 @@ func GroupFlightHandler(w http.ResponseWriter, r *http.Request) {
 		groupFlight := GroupFlight{
 			DepartureICAO:   lf.DepartureICAO,
 			ArrivalICAO:     lf.ArrivalICAO,
-			AircraftName:    lf.AircraftName,
 			Pilots:          pilots,
 			FlightCount:     len(pilots),
 			StartTime:       lf.ArrivalTime,
