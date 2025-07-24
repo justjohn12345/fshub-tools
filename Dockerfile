@@ -31,4 +31,4 @@ COPY --from=builder /app/main .
 COPY --from=builder /app/static ./static
 
 EXPOSE 8080
-ENTRYPOINT ["./main"]
+ENTRYPOINT ["./main", "--webhook"]
