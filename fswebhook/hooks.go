@@ -37,6 +37,8 @@ type FlightData struct {
 	User      User      `json:"user"`
 	Aircraft  Aircraft  `json:"aircraft"`
 	Departure Departure `json:"departure"`
+	Arrival   Arrival   `json:"arrival"`
+	Distance  Distance  `json:"distance"`
 	FuelBurnt float64   `json:"fuel_burnt"`
 }
 
@@ -51,14 +53,8 @@ type Aircraft struct {
 }
 
 type Departure struct {
-	Airport  Airport  `json:"airport"`
-	GPS      GPS      `json:"gps"`
-	Arrival  Arrival  `json:"arrival"`
-	Distance Distance `json:"distance"`
-}
-
-type GPS struct {
-	DateTime string `json:"datetime"`
+	Airport  Airport `json:"airport"`
+	DateTime string  `json:"datetime"`
 }
 
 type Airport struct {
@@ -116,24 +112,24 @@ func FlightCompletedHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	defer stmt.Close()
 
-	departureTime, _ := time.Parse(time.RFC3339, flight.Departure.GPS.DateTime)
-	arrivalTime, _ := time.Parse(time.RFC3339, flight.Departure.Arrival.DateTime)
+	departureTime, _ := time.Parse(time.RFC3339, flight.Departure.DateTime)
+	arrivalTime, _ := time.Parse(time.RFC3339, flight.Arrival.DateTime)
 	duration := arrivalTime.Sub(departureTime).Seconds()
 
 	_, err = stmt.Exec(
 		flight.ID,
 		flight.User.ID,
 		flight.User.Name,
-		flight.Departure.Arrival.LandingRate,
-		flight.Departure.Distance.NM,
+		flight.Arrival.LandingRate,
+		flight.Distance.NM,
 		duration,
 		flight.Aircraft.ICAO,
 		flight.Aircraft.Name,
 		flight.Departure.Airport.ICAO,
-		flight.Departure.Arrival.Airport.ICAO,
+		flight.Arrival.Airport.ICAO,
 		flight.FuelBurnt,
-		flight.Departure.GPS.DateTime,
-		flight.Departure.Arrival.DateTime,
+		flight.Departure.DateTime,
+		flight.Arrival.DateTime,
 	)
 	if err != nil {
 		log.Printf("Error inserting flight data: %v", err)

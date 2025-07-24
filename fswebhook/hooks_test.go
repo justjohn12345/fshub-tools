@@ -86,7 +86,7 @@ func TestFlightCompletedHandler(t *testing.T) {
 
 	err = db.QueryRow(`SELECT flightid, pilotid, pilotname, landing_rate,
 		 distance, time, aircraft_icao, aircraft_name, departure_icao, arrival_icao, 
-		 fuel_used, departure_time, arrival_time FROM flights WHERE flightid = ?`, 1796723).Scan(
+		 fuel_used, departure_time, arrival_time FROM flights WHERE flightid = ?`, 3901328).Scan(
 		&flightID, &pilotID, &pilotName, &landingRate,
 		&distance, &flightTime, &aircraftICAO, &aircraftName, &departureICAO, &arrivalICAO,
 		&fuelUsed, &departureTime, &arrivalTime)
@@ -94,44 +94,44 @@ func TestFlightCompletedHandler(t *testing.T) {
 		t.Fatalf("Failed to read row from database: %v", err)
 	}
 
-	if flightID != 1796723 {
-		t.Errorf("expected flightID to be 1796723, got %d", flightID)
+	if flightID != 3901328 {
+		t.Errorf("expected flightID to be 3901328, got %d", flightID)
 	}
-	if pilotID != 2 {
-		t.Errorf("expected pilotID to be 2, got %d", pilotID)
+	if pilotID != 25104 {
+		t.Errorf("expected pilotID to be 25104, got %d", pilotID)
 	}
-	if pilotName != "Bobby Allen" {
-		t.Errorf("expected pilotName to be 'Bobby Allen', got '%s'", pilotName)
+	if pilotName != "Inode" {
+		t.Errorf("expected pilotName to be 'Inode', got '%s'", pilotName)
 	}
-	if landingRate != -125 {
-		t.Errorf("expected landingRate to be -125, got %d", landingRate)
+	if landingRate != -196 {
+		t.Errorf("expected landingRate to be -196, got %d", landingRate)
 	}
-	if distance != 322 {
-		t.Errorf("expected distance to be 322, got %d", distance)
+	if distance != 352 {
+		t.Errorf("expected distance to be 352, got %d", distance)
 	}
-	if flightTime != 3857 {
-		t.Errorf("expected flightTime to be 3857, got %d", flightTime)
+	if flightTime != 3469 {
+		t.Errorf("expected flightTime to be 3469, got %d", flightTime)
 	}
-	if aircraftICAO != "A20N" {
-		t.Errorf("expected aircraftICAO to be 'A20N', got '%s'", aircraftICAO)
+	if aircraftICAO != "B38M" {
+		t.Errorf("expected aircraftICAO to be 'B38M', got '%s'", aircraftICAO)
 	}
-	if aircraftName != "British Airways Dirty Op" {
-		t.Errorf("expected aircraftName to be 'British Airways Dirty Op', got '%s'", aircraftName)
+	if aircraftName != "737 Max 8 Passengers" {
+		t.Errorf("expected aircraftName to be '737 Max 8 Passengers', got '%s'", aircraftName)
 	}
-	if departureICAO != "EGPH" {
-		t.Errorf("expected departureICAO to be 'EGPH', got '%s'", departureICAO)
+	if departureICAO != "KMYR" {
+		t.Errorf("expected departureICAO to be 'KMYR', got '%s'", departureICAO)
 	}
-	if arrivalICAO != "EGLL" {
-		t.Errorf("expected arrivalICAO to be 'EGLL', got '%s'", arrivalICAO)
+	if arrivalICAO != "KATL" {
+		t.Errorf("expected arrivalICAO to be 'KATL', got '%s'", arrivalICAO)
 	}
-	if fuelUsed != 0 {
-		t.Errorf("expected fuelUsed to be 0, got %f", fuelUsed)
+	if fuelUsed != 2390 {
+		t.Errorf("expected fuelUsed to be 2390, got %f", fuelUsed)
 	}
-	if departureTime != "2022-02-23T11:39:10Z" {
-		t.Errorf("expected departureTime to be '2022-02-23T11:39:10Z', got '%s'", departureTime)
+	if departureTime != "2025-07-24T21:32:49Z" {
+		t.Errorf("expected departureTime to be '2025-07-24T21:32:49Z', got '%s'", departureTime)
 	}
-	if arrivalTime != "2022-02-23T12:43:27Z" {
-		t.Errorf("expected arrivalTime to be '2022-02-23T12:43:27Z', got '%s'", arrivalTime)
+	if arrivalTime != "2025-07-24T22:30:38Z" {
+		t.Errorf("expected arrivalTime to be '2025-07-24T22:30:38Z', got '%s'", arrivalTime)
 	}
 }
 
@@ -150,22 +150,22 @@ func TestUnmarshalFlightCompletedEvent(t *testing.T) {
 	}
 
 	// Perform some basic checks to ensure the data was unmarshalled correctly
-	if event.Data.ID != 1796723 {
-		t.Errorf("expected flight ID to be 1796723, got '%d'", event.Data.ID)
+	if event.Data.ID != 3901328 {
+		t.Errorf("expected flight ID to be 3901328, got '%d'", event.Data.ID)
 	}
-	if event.Data.User.Name != "Bobby Allen" {
-		t.Errorf("expected user name to be 'Bobby Allen', got '%s'", event.Data.User.Name)
+	if event.Data.User.Name != "Inode" {
+		t.Errorf("expected user name to be 'Inode', got '%s'", event.Data.User.Name)
 	}
-	if event.Data.Aircraft.ICAO != "A20N" {
-		t.Errorf("expected aircraft ICAO to be 'A20N', got '%s'", event.Data.Aircraft.ICAO)
+	if event.Data.Aircraft.ICAO != "B38M" {
+		t.Errorf("expected aircraft ICAO to be 'B38M', got '%s'", event.Data.Aircraft.ICAO)
 	}
-	if event.Data.Departure.Airport.ICAO != "EGPH" {
-		t.Errorf("expected departure ICAO to be 'EGPH', got '%s'", event.Data.Departure.Airport.ICAO)
+	if event.Data.Departure.Airport.ICAO != "KMYR" {
+		t.Errorf("expected departure ICAO to be 'KMYR', got '%s'", event.Data.Departure.Airport.ICAO)
 	}
-	if event.Data.Departure.Arrival.Airport.ICAO != "EGLL" {
-		t.Errorf("expected arrival ICAO to be 'EGLL', got '%s'", event.Data.Departure.Arrival.Airport.ICAO)
+	if event.Data.Arrival.Airport.ICAO != "KATL" {
+		t.Errorf("expected arrival ICAO to be 'KATL', got '%s'", event.Data.Arrival.Airport.ICAO)
 	}
-	if event.Data.Departure.Arrival.LandingRate != -125 {
-		t.Errorf("expected landing rate to be -125, got '%d'", event.Data.Departure.Arrival.LandingRate)
+	if event.Data.Arrival.LandingRate != -196 {
+		t.Errorf("expected landing rate to be -196, got '%d'", event.Data.Arrival.LandingRate)
 	}
 }
