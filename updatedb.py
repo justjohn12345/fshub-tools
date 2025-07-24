@@ -74,7 +74,6 @@ def insert_flight_data(conn, flight):
         "pilotid": flight.get("user", {}).get("id"),
         "pilotname": flight.get("user", {}).get("name"),
         "landing_rate": flight.get("landing_rate"),
-        "ts": flight.get("departure", {}).get("time"),
         "distance": flight.get("distance", {}).get("nm"),
         "time": flight.get("time"),
         "aircraft_icao": flight.get("aircraft", {}).get("icao"),

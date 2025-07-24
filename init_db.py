@@ -11,7 +11,6 @@ CREATE TABLE flights (
     pilotid INTEGER,
     pilotname TEXT,
     landing_rate REAL,
-    ts DATETIME,
     distance INTEGER,
     "time" INTEGER,
     aircraft_icao TEXT,

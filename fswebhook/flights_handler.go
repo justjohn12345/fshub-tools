@@ -60,7 +60,7 @@ func getTopPilots(start, end time.Time, orderBy string) ([]PilotStats, error) {
 			SUM(distance) AS total_distance,
 			SUM(time) / 3600.0 AS total_hours
 		FROM flights
-		WHERE ts >= ? AND ts < ?
+		WHERE arrival_time >= ? AND arrival_time < ?
 		GROUP BY pilotid, pilotname
 		HAVING COUNT(flightid) >= 10
 	`

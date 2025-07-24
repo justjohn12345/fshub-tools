@@ -1,9 +1,11 @@
 package fswebhook
 
 import (
+	"bytes"
 	"database/sql"
 	"encoding/json"
 	"fmt"
+	"io"
 	"log"
 	"net/http"
 	"time"
@@ -25,7 +27,6 @@ func InitDB() {
 	}
 	fmt.Println("Successfully connected to the database.")
 }
-
 
 type FlightCompletedEvent struct {
 	Data FlightData `json:"_data"`
@@ -74,13 +75,27 @@ type Distance struct {
 	NM int `json:"nm"`
 }
 
-
-
 func FlightCompletedHandler(w http.ResponseWriter, r *http.Request) {
+	log.Println("Received flight completed event")
+	// if r.Header.Get("Content-Type") != "application/json" {
+	// 	http.Error(w, "Content-Type must be application/json", http.StatusUnsupportedMediaType)
+	// 	return
+	// }
+
 	if r.Method != http.MethodPost {
 		http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
 		return
 	}
+
+	bodyBytes, err := io.ReadAll(r.Body)
+	if err != nil {
+		log.Printf("Error reading request body: %v", err)
+		http.Error(w, "Error reading request body", http.StatusBadRequest)
+		return
+	}
+	log.Printf("Received flight completed event: %s", bodyBytes)
+
+	r.Body = io.NopCloser(bytes.NewBuffer(bodyBytes))
 
 	var event FlightCompletedEvent
 	if err := json.NewDecoder(r.Body).Decode(&event); err != nil {
@@ -93,10 +108,10 @@ func FlightCompletedHandler(w http.ResponseWriter, r *http.Request) {
 
 	stmt, err := db.Prepare(`
 		INSERT INTO flights (
-			flightid, pilotid, pilotname, landing_rate, ts, distance, "time",
+			flightid, pilotid, pilotname, landing_rate, distance, "time",
 			aircraft_icao, aircraft_name, departure_icao, arrival_icao, fuel_used,
 			departure_time, arrival_time
-		) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+		) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 	`)
 	if err != nil {
 		log.Printf("Error preparing statement: %v", err)
@@ -114,7 +129,6 @@ func FlightCompletedHandler(w http.ResponseWriter, r *http.Request) {
 		flight.User.ID,
 		flight.User.Name,
 		flight.Departure.Arrival.LandingRate,
-		time.Now().UTC(),
 		flight.Distance.NM,
 		duration,
 		flight.Aircraft.ICAO,
