@@ -11,6 +11,10 @@ import (
 )
 
 func TestFlightCompletedHandler(t *testing.T) {
+	// Set the webhook secret for the test
+	os.Setenv("WEBHOOK_SECRET", "test-secret")
+	defer os.Unsetenv("WEBHOOK_SECRET")
+
 	// Initialize the database for testing
 	InitDB()
 
@@ -49,7 +53,7 @@ func TestFlightCompletedHandler(t *testing.T) {
 	}
 
 	// Create a request with the example JSON data
-	req, err := http.NewRequest("POST", "/flight-completed", bytes.NewBuffer(jsonData))
+	req, err := http.NewRequest("POST", "/flight-completed?secret=test-secret", bytes.NewBuffer(jsonData))
 	if err != nil {
 		t.Fatal(err)
 	}

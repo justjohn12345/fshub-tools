@@ -8,6 +8,7 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"os"
 	"time"
 
 	_ "github.com/mattn/go-sqlite3"
@@ -72,6 +73,14 @@ type Distance struct {
 }
 
 func FlightCompletedHandler(w http.ResponseWriter, r *http.Request) {
+	secret := os.Getenv("WEBHOOK_SECRET")
+	if secret != "" {
+		if r.URL.Query().Get("secret") != secret {
+			http.Error(w, "Unauthorized", http.StatusUnauthorized)
+			return
+		}
+	}
+
 	log.Println("Received flight completed event")
 
 	if r.Method != http.MethodPost {
@@ -99,7 +108,7 @@ func FlightCompletedHandler(w http.ResponseWriter, r *http.Request) {
 	flight := event.Data
 
 	stmt, err := db.Prepare(`
-		INSERT INTO flights (
+		INSERT OR REPLACE INTO flights (
 			flightid, pilotid, pilotname, landing_rate, distance, "time",
 			aircraft_icao, aircraft_name, departure_icao, arrival_icao, fuel_used,
 			departure_time, arrival_time
