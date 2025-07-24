@@ -21,7 +21,6 @@ func TestFlightCompletedHandler(t *testing.T) {
 		pilotid INTEGER,
 		pilotname TEXT,
 		landing_rate INTEGER,
-		ts DATETIME,
 		distance INTEGER,
 		"time" INTEGER,
 		aircraft_icao TEXT,
@@ -66,6 +65,73 @@ func TestFlightCompletedHandler(t *testing.T) {
 	if status := rr.Code; status != http.StatusOK {
 		t.Errorf("handler returned wrong status code: got %v want %v",
 			status, http.StatusOK)
+	}
+
+	// Verify the data was written to the database correctly
+	var (
+		flightID      int
+		pilotID       int
+		pilotName     string
+		landingRate   int
+		distance      int
+		flightTime    int
+		aircraftICAO  string
+		aircraftName  string
+		departureICAO string
+		arrivalICAO   string
+		fuelUsed      float64
+		departureTime string
+		arrivalTime   string
+	)
+
+	err = db.QueryRow(`SELECT flightid, pilotid, pilotname, landing_rate,
+		 distance, time, aircraft_icao, aircraft_name, departure_icao, arrival_icao, 
+		 fuel_used, departure_time, arrival_time FROM flights WHERE flightid = ?`, 1796723).Scan(
+		&flightID, &pilotID, &pilotName, &landingRate,
+		&distance, &flightTime, &aircraftICAO, &aircraftName, &departureICAO, &arrivalICAO,
+		&fuelUsed, &departureTime, &arrivalTime)
+	if err != nil {
+		t.Fatalf("Failed to read row from database: %v", err)
+	}
+
+	if flightID != 1796723 {
+		t.Errorf("expected flightID to be 1796723, got %d", flightID)
+	}
+	if pilotID != 2 {
+		t.Errorf("expected pilotID to be 2, got %d", pilotID)
+	}
+	if pilotName != "Bobby Allen" {
+		t.Errorf("expected pilotName to be 'Bobby Allen', got '%s'", pilotName)
+	}
+	if landingRate != -125 {
+		t.Errorf("expected landingRate to be -125, got %d", landingRate)
+	}
+	if distance != 322 {
+		t.Errorf("expected distance to be 322, got %d", distance)
+	}
+	if flightTime != 3857 {
+		t.Errorf("expected flightTime to be 3857, got %d", flightTime)
+	}
+	if aircraftICAO != "A20N" {
+		t.Errorf("expected aircraftICAO to be 'A20N', got '%s'", aircraftICAO)
+	}
+	if aircraftName != "British Airways Dirty Op" {
+		t.Errorf("expected aircraftName to be 'British Airways Dirty Op', got '%s'", aircraftName)
+	}
+	if departureICAO != "EGPH" {
+		t.Errorf("expected departureICAO to be 'EGPH', got '%s'", departureICAO)
+	}
+	if arrivalICAO != "EGLL" {
+		t.Errorf("expected arrivalICAO to be 'EGLL', got '%s'", arrivalICAO)
+	}
+	if fuelUsed != 0 {
+		t.Errorf("expected fuelUsed to be 0, got %f", fuelUsed)
+	}
+	if departureTime != "2022-02-23T11:39:10Z" {
+		t.Errorf("expected departureTime to be '2022-02-23T11:39:10Z', got '%s'", departureTime)
+	}
+	if arrivalTime != "2022-02-23T12:43:27Z" {
+		t.Errorf("expected arrivalTime to be '2022-02-23T12:43:27Z', got '%s'", arrivalTime)
 	}
 }
 

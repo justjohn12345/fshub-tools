@@ -37,7 +37,6 @@ type FlightData struct {
 	User      User      `json:"user"`
 	Aircraft  Aircraft  `json:"aircraft"`
 	Departure Departure `json:"departure"`
-	Distance  Distance  `json:"distance"`
 	FuelBurnt float64   `json:"fuel_burnt"`
 }
 
@@ -52,9 +51,10 @@ type Aircraft struct {
 }
 
 type Departure struct {
-	Airport Airport `json:"airport"`
-	GPS     GPS     `json:"gps"`
-	Arrival Arrival `json:"arrival"`
+	Airport  Airport  `json:"airport"`
+	GPS      GPS      `json:"gps"`
+	Arrival  Arrival  `json:"arrival"`
+	Distance Distance `json:"distance"`
 }
 
 type GPS struct {
@@ -77,10 +77,6 @@ type Distance struct {
 
 func FlightCompletedHandler(w http.ResponseWriter, r *http.Request) {
 	log.Println("Received flight completed event")
-	// if r.Header.Get("Content-Type") != "application/json" {
-	// 	http.Error(w, "Content-Type must be application/json", http.StatusUnsupportedMediaType)
-	// 	return
-	// }
 
 	if r.Method != http.MethodPost {
 		http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
@@ -129,7 +125,7 @@ func FlightCompletedHandler(w http.ResponseWriter, r *http.Request) {
 		flight.User.ID,
 		flight.User.Name,
 		flight.Departure.Arrival.LandingRate,
-		flight.Distance.NM,
+		flight.Departure.Distance.NM,
 		duration,
 		flight.Aircraft.ICAO,
 		flight.Aircraft.Name,
