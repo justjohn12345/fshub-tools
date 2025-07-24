@@ -1,0 +1,327 @@
+{
+    "_variant": "User",
+    "_type": "flight.completed",
+    "_sent": 1645620212,
+    "_data": {
+        "id": 1796723,
+        "user": {
+            "id": 2,
+            "name": "Bobby Allen",
+            "email": "bobbyallen.uk@gmail.com",
+            "profile": {
+                "avatar_url": "https://fshub.ams3.digitaloceanspaces.com/avatars/u_2_80.png?c=1645620207",
+                "bio": "Developer of FSHub and the LRM Client. Airbus A320 and GA virtual pilot!"
+            },
+            "locations": {
+                "base": "EGSS",
+                "locale": "EGLL"
+            },
+            "handles": {
+                "website": null,
+                "twitter": "@allebb87",
+                "facebook": null,
+                "vatsim": "1167426",
+                "ivao": "458562"
+            },
+            "timezone": "Europe/London",
+            "country": "GB"
+        },
+        "aircraft": {
+            "icao": "A20N",
+            "icao_name": "Airbus A320 neo",
+            "name": "British Airways Dirty Op",
+            "type": "TT:ATCCOM.ATC_NAME AIRB",
+            "user_conf": {
+                "tail": "G-TTNB",
+                "icao": "A20N"
+            }
+        },
+        "airline": {
+            "id": 1778,
+            "owner": {
+                "id": 2,
+                "name": "Bobby Allen",
+                "email": "bobbyallen.uk@gmail.com",
+                "profile": {
+                    "avatar_url": "https://fshub.ams3.digitaloceanspaces.com/avatars/u_2_80.png?c=1645620207",
+                    "bio": "Developer of FSHub and the LRM Client. Airbus A320 and GA virtual pilot!"
+                },
+                "locations": {
+                    "base": "EGSS",
+                    "locale": "EGLL"
+                },
+                "handles": {
+                    "website": null,
+                    "twitter": "@allebb87",
+                    "facebook": null,
+                    "vatsim": "1167426",
+                    "ivao": "458562"
+                },
+                "timezone": "Europe/London",
+                "country": "GB"
+            },
+            "name": "British Airways",
+            "profile": {
+                "abbreviation": "BAW",
+                "bio": null
+            },
+            "handles": {
+                "website": null,
+                "twitter": null,
+                "facebook": null
+            }
+        },
+        "schedule_status": "DELAYED",
+        "plan": {
+            "callsign": "BA1439",
+            "cruise_lvl": 370,
+            "route": "EGPH TLA6C TLA UN864 DCS UL612 LAKEY DCT NUGRA BOVA1B EGLL",
+            "icao_dep": "EGPH",
+            "icao_arr": "EGLL"
+        },
+        "departure": {
+            "id": 2198098,
+            "user": {
+                "id": 2,
+                "name": "Bobby Allen",
+                "email": "bobbyallen.uk@gmail.com",
+                "profile": {
+                    "avatar_url": "https://fshub.ams3.digitaloceanspaces.com/avatars/u_2_80.png?c=1645620207",
+                    "bio": "Developer of FSHub and the LRM Client. Airbus A320 and GA virtual pilot!"
+                },
+                "locations": {
+                    "base": "EGSS",
+                    "locale": "EGLL"
+                },
+                "handles": {
+                    "website": null,
+                    "twitter": "@allebb87",
+                    "facebook": null,
+                    "vatsim": "1167426",
+                    "ivao": "458562"
+                },
+                "timezone": "Europe/London",
+                "country": "GB"
+            },
+            "aircraft": {
+                "icao": "A20N",
+                "icao_name": "Airbus A320 neo",
+                "name": "British Airways Dirty Op",
+                "type": "TT:ATCCOM.ATC_NAME AIRB",
+                "user_conf": {
+                    "tail": "G-TTNB",
+                    "icao": "A20N"
+                }
+            },
+            "airline": {
+                "id": 1778,
+                "owner": {
+                    "id": 2,
+                    "name": "Bobby Allen",
+                    "email": "bobbyallen.uk@gmail.com",
+                    "profile": {
+                        "avatar_url": "https://fshub.ams3.digitaloceanspaces.com/avatars/u_2_80.png?c=1645620207",
+                        "bio": "Developer of FSHub and the LRM Client. Airbus A320 and GA virtual pilot!"
+                    },
+                    "locations": {
+                        "base": "EGSS",
+                        "locale": "EGLL"
+                    },
+                    "handles": {
+                        "website": null,
+                        "twitter": "@allebb87",
+                        "facebook": null,
+                        "vatsim": "1167426",
+                        "ivao": "458562"
+                    },
+                    "timezone": "Europe/London",
+                    "country": "GB"
+                },
+                "name": "British Airways",
+                "profile": {
+                    "abbreviation": "BAW",
+                    "bio": null
+                },
+                "handles": {
+                    "website": null,
+                    "twitter": null,
+                    "facebook": null
+                }
+            },
+            "plan": {
+                "flight_no": "BA1439",
+                "cruise_lvl": 370,
+                "departure": "EGPH",
+                "arrival": "EGLL"
+            },
+            "schedule": {
+                "status": "ON-TIME",
+                "time": "1147Z"
+            },
+            "airport": {
+                "icao": "EGPH",
+                "iata": "EDI",
+                "name": "Edinburgh",
+                "locale": {
+                    "city": "Edinburgh",
+                    "state": null,
+                    "country": "United Kingdom",
+                    "gps": {
+                        "lat": 55.950001,
+                        "lng": -3.3725
+                    }
+                }
+            },
+            "pitch": -7,
+            "bank": -3,
+            "speed_tas": 151,
+            "heading": {
+                "true": 238,
+                "magnetic": 0
+            },
+            "wind": {
+                "speed": 25,
+                "direction": 210
+            },
+            "weight": {
+                "fuel": 0,
+                "zfw": 921
+            },
+            "gps": {
+                "lat": 55.951468,
+                "lng": -3.368304,
+                "datetime": "2022-02-23T11:39:10.000000Z",
+                "departure_at": "2022-02-23T11:39:10.000000Z"
+            },
+            "arrival": {
+                "id": 2398050,
+                "user": {
+                    "id": 2,
+                    "name": "Bobby Allen",
+                    "email": "bobbyallen.uk@gmail.com",
+                    "profile": {
+                        "avatar_url": "https://fshub.ams3.digitaloceanspaces.com/avatars/u_2_80.png?c=1645620207",
+                        "bio": "Developer of FSHub and the LRM Client. Airbus A320 and GA virtual pilot!"
+                    },
+                    "locations": {
+                        "base": "EGSS",
+                        "locale": "EGLL"
+                    },
+                    "handles": {
+                        "website": null,
+                        "twitter": "@allebb87",
+                        "facebook": null,
+                        "vatsim": "1167426",
+                        "ivao": "458562"
+                    },
+                    "timezone": "Europe/London",
+                    "country": "GB"
+                },
+                "aircraft": {
+                    "icao": "A20N",
+                    "icao_name": "Airbus A320 neo",
+                    "name": "British Airways Dirty Op",
+                    "type": "TT:ATCCOM.ATC_NAME AIRB",
+                    "user_conf": {
+                        "tail": "G-TTNB",
+                        "icao": "A20N"
+                    }
+                },
+                "airline": {
+                    "id": 1778,
+                    "owner": {
+                        "id": 2,
+                        "name": "Bobby Allen",
+                        "email": "bobbyallen.uk@gmail.com",
+                        "profile": {
+                            "avatar_url": "https://fshub.ams3.digitaloceanspaces.com/avatars/u_2_80.png?c=1645620207",
+                            "bio": "Developer of FSHub and the LRM Client. Airbus A320 and GA virtual pilot!"
+                        },
+                        "locations": {
+                            "base": "EGSS",
+                            "locale": "EGLL"
+                        },
+                        "handles": {
+                            "website": null,
+                            "twitter": "@allebb87",
+                            "facebook": null,
+                            "vatsim": "1167426",
+                            "ivao": "458562"
+                        },
+                        "timezone": "Europe/London",
+                        "country": "GB"
+                    },
+                    "name": "British Airways",
+                    "profile": {
+                        "abbreviation": "BAW",
+                        "bio": null
+                    },
+                    "handles": {
+                        "website": null,
+                        "twitter": null,
+                        "facebook": null
+                    }
+                },
+                "plan": {
+                    "flight_no": "BA1439",
+                    "cruise_lvl": 370,
+                    "departure": "EGPH",
+                    "arrival": "EGLL"
+                },
+                "schedule": {
+                    "status": "DELAYED",
+                    "time": "1352Z"
+                },
+                "airport": {
+                    "icao": "EGLL",
+                    "iata": "LHR",
+                    "name": "Heathrow",
+                    "locale": {
+                        "city": "London",
+                        "state": null,
+                        "country": "United Kingdom",
+                        "gps": {
+                            "lat": 51.477501,
+                            "lng": -0.46138900000000005
+                        }
+                    }
+                },
+                "landing_rate": -125,
+                "pitch": -3,
+                "bank": -1,
+                "speed_tas": 115,
+                "heading": {
+                    "true": 266,
+                    "magnetic": 266
+                },
+                "wind": {
+                    "speed": 13,
+                    "direction": 219
+                },
+                "weight": {
+                    "fuel": 0,
+                    "zfw": 921
+                },
+                "gps": {
+                    "lat": 51.47774,
+                    "lng": -0.44360999999999995
+                },
+                "datetime": "2022-02-23T12:43:27.000000Z",
+                "arrival_at": "2022-02-23T12:43:27.000000Z"
+            },
+            "distance": {
+                "nm": 322,
+                "km": 596
+            },
+            "max": {
+                "alt": 40084,
+                "spd": 463
+            },
+            "fuel_burnt": 0,
+            "geo": "{\"alt_asl\":[114,209,1392,2764,3739,5133,6887,8469,9963,11349,12636,13836,14915,15934,16377,17196,18062,19181,20004,21569,23077,24248,25469,26731,27690,28608,29648,30629,31462,32094,32971,33645,34354,35013,35316,35322,35328,35339,35342,35355,35360,35369,35378,35389,35397,35407,35417,35429,35433,35457,35467,35487,35655,36600,36430,36578,37227,37552,37904,38236,38619,38951,39256,39549,39833,40084,39179,37107,34472,33824,33278,33857,34831,35631,35712,35727,35740,35749,35758,35771,35781,35797,35808,35821,35819,35823,35836,35858,35877,35897,35576,34233,32511,30533,28703,27238,25801,24335,22923,21629,20341,19961,19107,18243,17389,16530,15707,15430,15236,15069,14915,14589,13931,13335,12758,12184,11611,11044,10484,9888,9123,8361,7596,6827,6064,5303,4533,3768,3017,2561,2526,2517,2513,2509,2489,2503,2506,2500,2503,2503,2449,2273,2094,1913,1710,1504,1299,1090,879,659,439,187],\"spd_tas\":[151,159,174,177,189,200,189,181,178,172,170,170,173,176,215,235,240,241,242,249,255,260,267,272,280,287,293,294,306,313,319,329,332,339,346,340,341,343,340,342,341,341,341,341,341,339,339,339,338,340,341,336,308,288,299,307,299,307,311,315,317,320,323,326,329,333,369,436,463,439,441,449,448,448,444,444,444,444,444,444,445,445,445,444,442,440,441,442,443,444,440,441,443,446,442,431,420,412,404,396,387,385,380,375,370,366,360,338,318,299,282,272,270,268,265,262,260,259,256,255,259,283,279,276,273,270,268,266,266,256,256,235,215,192,170,132,127,126,128,128,129,127,127,133,136,136,136,135,133,132,133,131]}",
+            "chart": "{\"type\":\"FeatureCollection\",\"features\":[{\"type\":\"Feature\",\"geometry\":{\"type\":\"Point\",\"coordinates\":[-3.368304,55.951468]},\"properties\":{\"ICAO\":\"EGPH\",\"Name\":\"Edinburgh\",\"Leg\":\"Departure\",\"Hdg\":238}},{\"type\":\"Feature\",\"geometry\":{\"type\":\"Point\",\"coordinates\":[-0.44360999999999995,51.47774]},\"properties\":{\"ICAO\":\"EGLL\",\"Name\":\"Heathrow\",\"Leg\":\"Arrival\",\"Hdg\":266}},{\"type\":\"Feature\",\"geometry\":{\"type\":\"LineString\",\"coordinates\":[[-3.368304,55.951468],[-3.368304,55.951468],[-3.372208,55.950241],[-3.392482,55.944188],[-3.409488,55.938417],[-3.426179,55.932032],[-3.444937,55.924906],[-3.462268,55.918309],[-3.478303,55.912221],[-3.493381,55.906499],[-3.507474,55.901146],[-3.520517,55.896192],[-3.533042,55.891436],[-3.545567,55.886677],[-3.558311,55.881835],[-3.572133,55.875271],[-3.576329,55.860303],[-3.554423,55.842593],[-3.532168,55.824556],[-3.522634,55.81137],[-3.507053,55.782468],[-3.491387,55.752555],[-3.474532,55.721718],[-3.457224,55.690408],[-3.439615,55.658222],[-3.421697,55.625196],[-3.403173,55.591184],[-3.384202,55.556413],[-3.364794,55.520643],[-3.3525,55.484686],[-3.352039,55.44986],[-3.351781,55.414198],[-3.351374,55.376752],[-3.350605,55.338391],[-3.349992,55.298668],[-3.349365,55.257713],[-3.34839,55.216597],[-3.347705,55.175718],[-3.347134,55.134735],[-3.34641,55.093772],[-3.345804,55.052942],[-3.345162,55.011814],[-3.344464,54.970894],[-3.34383,54.929915],[-3.343185,54.889023],[-3.342541,54.848053],[-3.341869,54.807167],[-3.34123,54.766545],[-3.336332,54.725197],[-3.311327,54.682376],[-3.278633,54.639407],[-3.246321,54.596423],[-3.214274,54.553737],[-3.183023,54.512429],[-3.153774,54.474638],[-3.126128,54.436618],[-3.100176,54.397333],[-3.07591,54.358256],[-3.05341,54.319104],[-3.032596,54.279458],[-3.013489,54.239438],[-2.99611,54.199101],[-2.98048,54.158544],[-2.96701,54.119002],[-2.954807,54.077915],[-2.944333,54.03652],[-2.935323,53.994957],[-2.895784,53.952142],[-2.807102,53.91768],[-2.72416,53.868885],[-2.684396,53.811511],[-2.683638,53.756297],[-2.671203,53.698795],[-2.641922,53.640594],[-2.608807,53.582244],[-2.576056,53.524248],[-2.543798,53.466282],[-2.511676,53.408294],[-2.47965,53.350354],[-2.447694,53.292367],[-2.415882,53.234485],[-2.384082,53.176448],[-2.352422,53.118516],[-2.320798,53.060482],[-2.278659,53.003236],[-2.220426,52.948518],[-2.161984,52.894045],[-2.104581,52.839288],[-2.047522,52.784413],[-1.990511,52.729453],[-1.933467,52.674321],[-1.876736,52.619417],[-1.820678,52.564924],[-1.764726,52.510289],[-1.70871,52.455395],[-1.65237,52.40013],[-1.597144,52.34601],[-1.543431,52.293056],[-1.490819,52.241284],[-1.433471,52.192221],[-1.369905,52.146958],[-1.308071,52.103219],[-1.289939,52.090256],[-1.250375,52.061847],[-1.211592,52.033881],[-1.173584,52.006423],[-1.136159,51.979338],[-1.099384,51.952673],[-1.063796,51.926876],[-1.030354,51.902661],[-0.998891,51.879802],[-0.966176,51.859564],[-0.929283,51.843622],[-0.889251,51.830947],[-0.849384,51.818527],[-0.809931,51.806361],[-0.770955,51.794388],[-0.73247,51.782567],[-0.694476,51.770879],[-0.65696,51.759315],[-0.619874,51.747868],[-0.582702,51.736338],[-0.546848,51.721977],[-0.515206,51.703254],[-0.484971,51.68426],[-0.455309,51.665521],[-0.426268,51.646992],[-0.3977,51.628643],[-0.369537,51.610501],[-0.336888,51.595848],[-0.299529,51.58492],[-0.263312,51.574417],[-0.228081,51.564254],[-0.204034,51.549924],[-0.197093,51.532663],[-0.191193,51.517399],[-0.186336,51.504735],[-0.189636,51.494759],[-0.194565,51.485488],[-0.206568,51.479921],[-0.221791,51.478385],[-0.237549,51.478292],[-0.253086,51.478248],[-0.26856,51.478186],[-0.284208,51.478131],[-0.301261,51.478083],[-0.318494,51.478029],[-0.335821,51.477975],[-0.35327,51.477917],[-0.371026,51.477853],[-0.38941,51.4778],[-0.407812,51.477748],[-0.426058,51.477779],[-0.44360999999999995,51.47774]]},\"properties\":[]}]}",
+            "remarks": null,
+            "tags": null
+        }
+    }
+}

@@ -20,7 +20,6 @@ func main() {
 	fswebhook.InitDB()
 
 	http.Handle("/", http.FileServer(http.Dir("./static")))
-	http.HandleFunc("/hello", fswebhook.HelloHandler)
 	http.HandleFunc("/flights", fswebhook.FlightsHandler)
 	http.HandleFunc("/group-flight", fswebhook.GroupFlightHandler)
 
