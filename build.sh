@@ -1,2 +1,2 @@
 #!/bin/sh
-docker build -t fshub-tools .
+sudo docker build -t fshub-tools .

@@ -30,5 +30,6 @@ COPY --from=builder /app/main .
 # Copy the static web assets
 COPY --from=builder /app/static ./static
 
-EXPOSE 8080
-ENTRYPOINT ["./main", "--webhook"]
+EXPOSE 80
+EXPOSE 443
+ENTRYPOINT ["./main"]

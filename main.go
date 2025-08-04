@@ -1,6 +1,7 @@
 package main
 
 import (
+	"crypto/tls"
 	"flag"
 	"fmt"
 	"log"
@@ -10,11 +11,13 @@ import (
 	"fshubhook/fswebhook"
 
 	"github.com/gorilla/handlers"
+	"golang.org/x/crypto/acme/autocert"
 )
 
 func main() {
 	// Define a command-line flag to enable the webhook.
-	webhookEnabled := flag.Bool("webhook", false, "Enable the flight completed webhook")
+	webhookEnabled := flag.Bool("webhook", true, "Enable the flight completed webhook")
+	hostname := flag.String("hostname", "", "Hostname for TLS certificate")
 	flag.Parse()
 
 	fswebhook.InitDB()
@@ -32,8 +35,35 @@ func main() {
 	// Wrap the default ServeMux with the logging middleware.
 	loggedRouter := handlers.LoggingHandler(os.Stdout, http.DefaultServeMux)
 
-	fmt.Println("Server starting on port 8080...")
-	if err := http.ListenAndServe("0.0.0.0:8080", loggedRouter); err != nil {
-		log.Fatalf("Error starting server: %s", err)
+	if *hostname != "" {
+		certManager := autocert.Manager{
+			Prompt:     autocert.AcceptTOS,
+			HostPolicy: autocert.HostWhitelist(*hostname),
+			Cache:      autocert.DirCache("/etc/certs"),
+		}
+
+		server := &http.Server{
+			Addr:    ":443",
+			Handler: loggedRouter,
+			TLSConfig: &tls.Config{
+				GetCertificate: certManager.GetCertificate,
+			},
+		}
+
+		go func() {
+			// Serve HTTP, which will redirect to HTTPS
+			h := certManager.HTTPHandler(nil)
+			log.Fatal(http.ListenAndServe(":80", h))
+		}()
+
+		fmt.Println("Server starting on port 443 for https...")
+		if err := server.ListenAndServeTLS("", ""); err != nil {
+			log.Fatalf("Error starting server: %s", err)
+		}
+	} else {
+		fmt.Println("Server starting on port 80...")
+		if err := http.ListenAndServe("0.0.0.0:80", loggedRouter); err != nil {
+			log.Fatalf("Error starting server: %s", err)
+		}
 	}
 }
