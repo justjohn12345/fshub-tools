@@ -173,3 +173,133 @@ func TestUnmarshalFlightCompletedEvent(t *testing.T) {
 		t.Errorf("expected landing rate to be -196, got '%d'", event.Data.Arrival.LandingRate)
 	}
 }
+
+func TestFlightCompletedHandler_EdgeCases(t *testing.T) {
+	os.Setenv("WEBHOOK_SECRET", "test-secret")
+	defer os.Unsetenv("WEBHOOK_SECRET")
+
+	InitDB()
+
+	_, err := db.Exec(`
+	CREATE TABLE IF NOT EXISTS flights (
+		flightid INTEGER PRIMARY KEY,
+		pilotid INTEGER,
+		pilotname TEXT,
+		landing_rate INTEGER,
+		distance INTEGER,
+		"time" INTEGER,
+		aircraft_icao TEXT,
+		aircraft_name TEXT,
+		departure_icao TEXT,
+		arrival_icao TEXT,
+		fuel_used INTEGER,
+		departure_time DATETIME,
+		arrival_time DATETIME
+	);
+	`)
+	if err != nil {
+		t.Fatalf("Failed to create flights table: %v", err)
+	}
+
+	_, err = db.Exec(`DELETE FROM flights`)
+	if err != nil {
+		t.Fatalf("Failed to clear flights table: %v", err)
+	}
+
+	baseJSON, err := os.ReadFile(filepath.Join("testdata", "flight.completed.example.json"))
+	if err != nil {
+		t.Fatalf("Failed to read example JSON file: %v", err)
+	}
+
+	var baseEvent FlightCompletedEvent
+	if err := json.Unmarshal(baseJSON, &baseEvent); err != nil {
+		t.Fatalf("Failed to unmarshal base JSON: %v", err)
+	}
+
+	testCases := []struct {
+		name          string
+		modifier      func(event *FlightCompletedEvent)
+		expectInDB    bool
+		expectedCount int
+	}{
+		{
+			name: "empty departure icao",
+			modifier: func(event *FlightCompletedEvent) {
+				event.Data.Departure.Airport.ICAO = ""
+			},
+			expectInDB: false,
+		},
+		{
+			name: "empty arrival icao",
+			modifier: func(event *FlightCompletedEvent) {
+				event.Data.Arrival.Airport.ICAO = ""
+			},
+			expectInDB: false,
+		},
+		{
+			name: "duration less than 5 minutes",
+			modifier: func(event *FlightCompletedEvent) {
+				event.Data.Arrival.DateTime = event.Data.Departure.DateTime
+			},
+			expectInDB: false,
+		},
+		{
+			name: "invalid arrival time",
+			modifier: func(event *FlightCompletedEvent) {
+				event.Data.Arrival.DateTime = "invalid-time"
+			},
+			expectInDB: false,
+		},
+		{
+			name: "invalid departure time",
+			modifier: func(event *FlightCompletedEvent) {
+				event.Data.Departure.DateTime = "invalid-time"
+			},
+			expectInDB: false,
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			event := baseEvent
+			tc.modifier(&event)
+
+			body, err := json.Marshal(event)
+			if err != nil {
+				t.Fatalf("Failed to marshal test case JSON: %v", err)
+			}
+
+			req, err := http.NewRequest("POST", "/flight-completed?secret=test-secret", bytes.NewBuffer(body))
+			if err != nil {
+				t.Fatal(err)
+			}
+
+			rr := httptest.NewRecorder()
+			handler := http.HandlerFunc(FlightCompletedHandler)
+			handler.ServeHTTP(rr, req)
+
+			if status := rr.Code; status != http.StatusOK {
+				t.Errorf("handler returned wrong status code: got %v want %v",
+					status, http.StatusOK)
+			}
+
+			var count int
+			err = db.QueryRow("SELECT COUNT(*) FROM flights WHERE flightid = ?", event.Data.ID).Scan(&count)
+			if err != nil {
+				t.Fatalf("Failed to query database: %v", err)
+			}
+
+			if tc.expectInDB && count == 0 {
+				t.Errorf("expected flight to be in database, but it wasn't")
+			}
+			if !tc.expectInDB && count > 0 {
+				t.Errorf("expected flight not to be in database, but it was")
+			}
+			// Clear the table for the next test
+			_, err = db.Exec(`DELETE FROM flights`)
+			if err != nil {
+				t.Fatalf("Failed to clear flights table: %v", err)
+			}
+		})
+	}
+}

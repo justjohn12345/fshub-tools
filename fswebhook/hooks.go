@@ -100,8 +100,14 @@ func FlightCompletedHandler(w http.ResponseWriter, r *http.Request) {
 
 	var event FlightCompletedEvent
 	if err := json.NewDecoder(r.Body).Decode(&event); err != nil {
-		log.Printf("Error decoding request body: %v", err)
-		http.Error(w, "Error decoding request body", http.StatusBadRequest)
+		log.Printf("Error decoding request body: %v /n body: %s", err, bodyBytes)
+		w.WriteHeader(http.StatusOK)
+		return
+	}
+
+	if event.Data.Arrival.Airport.ICAO == "" || event.Data.Departure.Airport.ICAO == "" {
+		log.Println("Missing required fields in flight data")
+		w.WriteHeader(http.StatusOK)
 		return
 	}
 
@@ -124,6 +130,18 @@ func FlightCompletedHandler(w http.ResponseWriter, r *http.Request) {
 	departureTime, _ := time.Parse(time.RFC3339, flight.Departure.DateTime)
 	arrivalTime, _ := time.Parse(time.RFC3339, flight.Arrival.DateTime)
 	duration := arrivalTime.Sub(departureTime).Seconds()
+
+	if duration < 300 { // Ignore flights shorter than 5 minutes
+		log.Println("Ignoring flight shorter than 5 minutes. body: ", bodyBytes)
+		w.WriteHeader(http.StatusOK)
+		return
+	}
+
+	if departureTime.IsZero() || arrivalTime.IsZero() {
+		log.Println("Invalid departure or arrival time: body: ", bodyBytes)
+		w.WriteHeader(http.StatusOK)
+		return
+	}
 
 	_, err = stmt.Exec(
 		flight.ID,
