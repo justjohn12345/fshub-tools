@@ -16,7 +16,7 @@ import (
 
 func main() {
 	// Define a command-line flag to enable the webhook.
-	webhookEnabled := flag.Bool("webhook", true, "Enable the flight completed webhook")
+	webhookEnabled := flag.Bool("webhook", false, "Enable the flight completed webhook")
 	hostname := flag.String("hostname", "", "Hostname for TLS certificate")
 	flag.Parse()
 
@@ -47,22 +47,26 @@ func main() {
 			Handler: loggedRouter,
 			TLSConfig: &tls.Config{
 				GetCertificate: certManager.GetCertificate,
+				MinVersion:     tls.VersionTLS11,
 			},
 		}
 
 		go func() {
-			// Serve HTTP, which will redirect to HTTPS
-			h := certManager.HTTPHandler(nil)
-			log.Fatal(http.ListenAndServe(":80", h))
+			fmt.Println("Server starting on port 443 for https...")
+			if err := server.ListenAndServeTLS("", ""); err != nil {
+				log.Fatalf("Error starting HTTPS server: %s", err)
+			}
 		}()
 
-		fmt.Println("Server starting on port 443 for https...")
-		if err := server.ListenAndServeTLS("", ""); err != nil {
-			log.Fatalf("Error starting server: %s", err)
-		}
+		// Serve HTTP, which will handle ACME challenges and serve content.
+		fmt.Println("Server starting on port 80 for http...")
+		// The HTTPHandler wraps the main router. It will handle ACME challenges
+		// and pass other requests to the loggedRouter.
+		log.Fatal(http.ListenAndServe(":80", certManager.HTTPHandler(loggedRouter)))
+
 	} else {
-		fmt.Println("Server starting on port 80...")
-		if err := http.ListenAndServe("0.0.0.0:80", loggedRouter); err != nil {
+		fmt.Println("Server starting on port 8080...")
+		if err := http.ListenAndServe("0.0.0.0:8080", loggedRouter); err != nil {
 			log.Fatalf("Error starting server: %s", err)
 		}
 	}
