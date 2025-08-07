@@ -125,7 +125,7 @@
                                 pilotCell.className = 'leader';
                             }
                             const rateCell = document.createElement('td');
-                            rateCell.textContent = pilot.landing_rate.toFixed(2);
+                            rateCell.textContent = Math.round(pilot.landing_rate);
                             const aircraftCell = document.createElement('td');
                             aircraftCell.textContent = pilot.aircraft_name;
                             row.appendChild(rankCell);

@@ -199,7 +199,7 @@
                                 <div class="pilot-details">
                                     <p class="pilot-name">${pilot.pilotname}</p>
                                     <div class="pilot-stats">
-                                        <span><strong>Avg. Landing Rate:</strong> ${pilot.average_landing_rate.toFixed(2)} fpm</span>
+                                        <span><strong>Avg. Landing Rate:</strong> ${Math.round(pilot.average_landing_rate)} fpm</span>
                                         <span><strong>Total Flights:</strong> ${pilot.total_flights}</span>
                                         <span><strong>Total Distance:</strong> ${pilot.total_distance_nm} nm</span>
                                         <span><strong>Total Hours:</strong> ${hoursFlown} hrs</span>
