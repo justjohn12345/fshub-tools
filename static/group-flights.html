@@ -1,6 +1,6 @@
-
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -14,44 +14,54 @@
             margin: 0;
             padding: 2em;
         }
+
         .container {
             max-width: 90%;
             margin: auto;
             background-color: #fff;
             border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
             padding: 2em;
         }
+
         h1 {
             text-align: center;
             color: #1c1e21;
         }
+
         .group-flight {
             border: 1px solid #dddfe2;
             border-radius: 6px;
             margin-bottom: 2em;
             padding: 1.5em;
         }
+
         .group-flight h2 {
             color: #1877f2;
         }
+
         table {
             width: 100%;
             border-collapse: collapse;
             margin-top: 1em;
         }
-        th, td {
+
+        th,
+        td {
             padding: 0.75em;
             text-align: left;
             border-bottom: 1px solid #dddfe2;
         }
+
         th {
             background-color: #f7f8fa;
         }
+
         .leader {
             font-weight: bold;
             color: #1877f2;
         }
+
         .error {
             color: #fa383e;
             text-align: center;
@@ -59,6 +69,7 @@
         }
     </style>
 </head>
+
 <body>
 
     <div class="container">
@@ -94,18 +105,20 @@
 
                         const title = document.createElement('h2');
                         title.textContent = `Group Flight: ${group.departure_icao} to ${group.arrival_icao}`;
-                        
+
                         const startTime = new Date(group.start_time).toLocaleString();
                         const info = document.createElement('p');
-                        info.innerHTML = `<strong>Start Time:</strong> ${startTime}<br><strong>Total Pilots:</strong> ${group.flight_count}`;
+                        info.innerHTML = `<strong>Start Time:</strong> ${startTime}<br><strong>Total Pilots:</strong> ${group.total_pilots}`;
 
                         const table = document.createElement('table');
                         const thead = document.createElement('thead');
-                        thead.innerHTML = '<tr><th>Pilot</th><th>Landing Rate (fpm)</th><th>Aircraft</th></tr>';
+                        thead.innerHTML = '<tr><th>Rank</th><th>Pilot</th><th>Landing Rate (fpm)</th><th>Aircraft</th></tr>';
                         const tbody = document.createElement('tbody');
 
                         group.top_landing_rates.forEach(pilot => {
                             const row = document.createElement('tr');
+                            const rankCell = document.createElement('td');
+                            rankCell.textContent = pilot.rank;
                             const pilotCell = document.createElement('td');
                             pilotCell.textContent = pilot.pilot_name;
                             if (pilot.pilot_name === 'KipOnTheGround') {
@@ -115,6 +128,7 @@
                             rateCell.textContent = pilot.landing_rate.toFixed(2);
                             const aircraftCell = document.createElement('td');
                             aircraftCell.textContent = pilot.aircraft_name;
+                            row.appendChild(rankCell);
                             row.appendChild(pilotCell);
                             row.appendChild(rateCell);
                             row.appendChild(aircraftCell);
@@ -137,4 +151,5 @@
     </script>
 
 </body>
+
 </html>
