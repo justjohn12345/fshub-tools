@@ -48,9 +48,17 @@ func GroupFlightHandler(w http.ResponseWriter, r *http.Request) {
 	sinceTime := time.Now().UTC().Add(-24 * time.Hour)
 
 	query := `
-	select * from (
-		select 
-			f.departure_icao, 
+		select f2.departure_icao, 
+			f2.arrival_icao, 
+			f2.arrival_time,
+			f2.landing_rate, 
+			f2.aircraft_name,
+			f2.pilotname,
+			f2.flightid,
+			f2.flight_number,
+			f2.rank,
+			f2.total_pilots from (
+		select f.departure_icao, 
 			f.arrival_icao, 
 			f.arrival_time,
 			f.landing_rate, 
@@ -58,8 +66,8 @@ func GroupFlightHandler(w http.ResponseWriter, r *http.Request) {
 			f.pilotname,
 			lf.flightid,
 			lf.flight_number,
-			row_number() OVER (PARTITION BY lf.flightid ORDER BY f.landing_rate desc) AS rn,
-            count(*) OVER (PARTITION BY lf.flightid) AS totalPilots
+			row_number() OVER (PARTITION BY lf.flightid ORDER BY f.landing_rate desc) AS rank,
+			count(*) OVER (PARTITION BY lf.flightid) AS total_pilots
 		FROM flights AS f
 		JOIN ( 
 			SELECT departure_icao, 
@@ -77,8 +85,10 @@ func GroupFlightHandler(w http.ResponseWriter, r *http.Request) {
 		AND f.arrival_icao = lf.arrival_icao
 		AND datetime(f.arrival_time) >= datetime(lf.arrival_time, '-30 minutes')
 		AND datetime(f.arrival_time) <= datetime(lf.arrival_time, '+30 minutes')
-	)
-	where rn <= 5 OR pilotname = ?`
+	) as f2
+	where (f2.rank <= 5 OR f2.pilotname = ?)
+	and f2.total_pilots > 4
+	ORDER BY f2.flight_number desc, f2.rank asc;`
 
 	rows, err := db.Query(query, pilotName, sinceTime.Format(time.RFC3339), pilotName)
 	if err != nil {
