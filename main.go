@@ -7,12 +7,21 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strings"
 
 	"fshubhook/fswebhook"
 
 	"github.com/gorilla/handlers"
 	"golang.org/x/crypto/acme/autocert"
 )
+
+func groupFlightsHandler(w http.ResponseWriter, r *http.Request) {
+	if strings.Contains(r.UserAgent(), "Mobi") {
+		http.ServeFile(w, r, "static/group-flights-mobile.html")
+		return
+	}
+	http.ServeFile(w, r, "static/group-flights-desktop.html")
+}
 
 func main() {
 	// Define a command-line flag to enable the webhook.
@@ -23,6 +32,7 @@ func main() {
 	fswebhook.InitDB()
 
 	http.Handle("/", http.FileServer(http.Dir("./static")))
+	http.HandleFunc("/group-flights.html", groupFlightsHandler)
 	http.HandleFunc("/flights", fswebhook.FlightsHandler)
 	http.HandleFunc("/group-flight", fswebhook.GroupFlightHandler)
 
