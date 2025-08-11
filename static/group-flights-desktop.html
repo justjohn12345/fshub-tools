@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Group Flights</title>
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-gray-100 text-gray-800">
+
+    <div class="container mx-auto p-4 sm:p-8">
+        <h1 class="text-2xl sm:text-4xl font-bold text-center text-gray-900 mb-8">Group Flights</h1>
+        <div id="group-flights-container"></div>
+        <p id="error-message" class="text-red-500 text-center font-bold"></p>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const container = document.getElementById('group-flights-container');
+            const errorMessage = document.getElementById('error-message');
+
+            fetch('/group-flight')
+                .then(response => {
+                    if (response.status === 404) {
+                        return [];
+                    }
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! Status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (!data || data.length === 0) {
+                        container.innerHTML = '<p class="text-center text-gray-500">No group flights found in the last 24 hours.</p>';
+                        return;
+                    }
+
+                    data.forEach(group => {
+                        const groupDiv = document.createElement('div');
+                        groupDiv.className = 'bg-white shadow-md rounded-lg mb-8 p-6';
+
+                        const title = document.createElement('h2');
+                        title.className = 'text-xl sm:text-2xl font-bold text-blue-600 mb-4';
+                        title.textContent = `Group Flight: ${group.departure_icao} to ${group.arrival_icao}`;
+
+                        const startTime = new Date(group.start_time).toLocaleString();
+                        const info = document.createElement('p');
+                        info.className = 'mb-4';
+                        info.innerHTML = `<strong class="font-semibold">Start Time:</strong> ${startTime}<br><strong class="font-semibold">Total Pilots:</strong> ${group.total_pilots}`;
+
+                        const table = document.createElement('table');
+                        table.className = 'min-w-full bg-white table-fixed';
+
+                        const thead = document.createElement('thead');
+                        thead.className = 'bg-gray-200';
+                        const headerRow = document.createElement('tr');
+                        const headers = ['Rank', 'Pilot', 'Landing Rate (fpm)', 'Aircraft'];
+                        headers.forEach(headerText => {
+                            const th = document.createElement('th');
+                            th.className = 'py-2 px-4 border-b text-left';
+                            th.textContent = headerText;
+                            headerRow.appendChild(th);
+                        });
+                        thead.appendChild(headerRow);
+
+                        const tbody = document.createElement('tbody');
+
+                        group.top_landing_rates.forEach(pilot => {
+                            const row = document.createElement('tr');
+                            row.className = 'hover:bg-gray-100';
+
+                            const rankCell = document.createElement('td');
+                            rankCell.className = 'py-2 px-4 border-b';
+                            rankCell.textContent = pilot.rank;
+
+                            const pilotCell = document.createElement('td');
+                            pilotCell.className = 'py-2 px-4 border-b';
+                            pilotCell.textContent = pilot.pilot_name;
+                            if (pilot.pilot_name === 'KipOnTheGround') {
+                                pilotCell.classList.add('font-bold', 'text-blue-600');
+                            }
+
+                            const rateCell = document.createElement('td');
+                            rateCell.className = 'py-2 px-4 border-b';
+                            rateCell.textContent = Math.round(pilot.landing_rate);
+
+                            const aircraftCell = document.createElement('td');
+                            aircraftCell.className = 'py-2 px-4 border-b';
+                            aircraftCell.textContent = pilot.aircraft_name;
+
+                            row.appendChild(rankCell);
+                            row.appendChild(pilotCell);
+                            row.appendChild(rateCell);
+                            row.appendChild(aircraftCell);
+                            tbody.appendChild(row);
+                        });
+
+                        table.appendChild(thead);
+                        table.appendChild(tbody);
+                        groupDiv.appendChild(title);
+                        groupDiv.appendChild(info);
+                        groupDiv.appendChild(table);
+                        container.appendChild(groupDiv);
+                    });
+                })
+                .catch(error => {
+                    console.error('Fetch error:', error);
+                    errorMessage.textContent = 'Failed to load group flight data. Make sure the server is running and the /group-flight endpoint is available.';
+                });
+        });
+    </script>
+
+</body>
+
+</html>

@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Group Flights</title>
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-gray-100 text-gray-800">
+
+    <div class="container mx-auto p-4">
+        <h1 class="text-3xl font-bold text-center text-gray-900 mb-6">Group Flights</h1>
+        <div id="group-flights-container"></div>
+        <p id="error-message" class="text-red-500 text-center font-bold"></p>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const container = document.getElementById('group-flights-container');
+            const errorMessage = document.getElementById('error-message');
+
+            fetch('/group-flight')
+                .then(response => {
+                    if (response.status === 404) {
+                        return [];
+                    }
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! Status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (!data || data.length === 0) {
+                        container.innerHTML = '<p class="text-center text-gray-500">No group flights found in the last 24 hours.</p>';
+                        return;
+                    }
+
+                    data.forEach(group => {
+                        const groupDiv = document.createElement('div');
+                        groupDiv.className = 'bg-white shadow-md rounded-lg mb-6 p-4';
+
+                        const title = document.createElement('h2');
+                        title.className = 'text-xl font-bold text-blue-600 mb-3';
+                        title.textContent = `Group Flight: ${group.departure_icao} to ${group.arrival_icao}`;
+
+                        const startTime = new Date(group.start_time).toLocaleString();
+                        const info = document.createElement('p');
+                        info.className = 'mb-4 text-sm';
+                        info.innerHTML = `<strong class="font-semibold">Start Time:</strong> ${startTime}<br><strong class="font-semibold">Total Pilots:</strong> ${group.total_pilots}`;
+                        
+                        groupDiv.appendChild(title);
+                        groupDiv.appendChild(info);
+
+                        group.top_landing_rates.forEach(pilot => {
+                            const pilotCard = document.createElement('div');
+                            pilotCard.className = 'border rounded-lg p-3 mb-3 bg-gray-50';
+
+                            const pilotName = document.createElement('div');
+                            pilotName.className = 'font-bold text-lg';
+                            if (pilot.pilot_name === 'KipOnTheGround') {
+                                pilotName.classList.add('text-blue-600');
+                            }
+                            pilotName.textContent = `${pilot.rank}. ${pilot.pilot_name}`;
+
+                            const landingRate = document.createElement('div');
+                            landingRate.className = 'text-sm';
+                            landingRate.innerHTML = `<strong class="font-semibold">Landing Rate:</strong> ${Math.round(pilot.landing_rate)} fpm`;
+
+                            const aircraft = document.createElement('div');
+                            aircraft.className = 'text-sm';
+                            aircraft.innerHTML = `<strong class="font-semibold">Aircraft:</strong> ${pilot.aircraft_name}`;
+
+                            pilotCard.appendChild(pilotName);
+                            pilotCard.appendChild(landingRate);
+                            pilotCard.appendChild(aircraft);
+                            groupDiv.appendChild(pilotCard);
+                        });
+
+                        container.appendChild(groupDiv);
+                    });
+                })
+                .catch(error => {
+                    console.error('Fetch error:', error);
+                    errorMessage.textContent = 'Failed to load group flight data. Make sure the server is running and the /group-flight endpoint is available.';
+                });
+        });
+    </script>
+
+</body>
+
+</html>
